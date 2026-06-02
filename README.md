@@ -1,4 +1,4 @@
-[![GitHub stars](https://img.shields.io/github/stars/generalistcodes/iam-opensource?style=social)](https://github.com/iamscenarios/iam-opensource) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing)
+[![GitHub stars](https://img.shields.io/github/stars/generalistcodes/iam-opensource?style=social)](https://github.com/generalistcodes/iam-opensource) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing)
 
 A systematic comparison of Keycloak, Zitadel, Authentik, and Gluu running as isolated Docker Compose profiles. Each system gets its own PostgreSQL instance. Portainer always runs for visual container management. Designed for engineers evaluating open-source IAM systems side by side — from basic OIDC flows to enterprise hardening. Part of [iamscenarios.com](https://iamscenarios.com).
 
