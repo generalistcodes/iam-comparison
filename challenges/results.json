@@ -1,0 +1,488 @@
+[
+  {
+    "system": "keycloak",
+    "level": 1,
+    "challenge_name": "create_user",
+    "passed": true,
+    "response_time_ms": 42,
+    "error": null,
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 1,
+    "challenge_name": "create_user",
+    "passed": true,
+    "response_time_ms": 13,
+    "error": null,
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 1,
+    "challenge_name": "create_user",
+    "passed": true,
+    "response_time_ms": 43,
+    "error": null,
+    "partial": false
+  },
+  {
+    "system": "keycloak",
+    "level": 1,
+    "challenge_name": "get_token",
+    "passed": true,
+    "response_time_ms": 5,
+    "error": null,
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 1,
+    "challenge_name": "get_token",
+    "passed": true,
+    "response_time_ms": 8,
+    "error": null,
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 1,
+    "challenge_name": "get_token",
+    "passed": true,
+    "response_time_ms": 220,
+    "error": null,
+    "partial": false
+  },
+  {
+    "system": "keycloak",
+    "level": 1,
+    "challenge_name": "verify_token",
+    "passed": true,
+    "response_time_ms": 47,
+    "error": null,
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 1,
+    "challenge_name": "verify_token",
+    "passed": true,
+    "response_time_ms": 6,
+    "error": "PAT accepted; userinfo unavailable for service token",
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 1,
+    "challenge_name": "verify_token",
+    "passed": true,
+    "response_time_ms": 49,
+    "error": null,
+    "partial": false
+  },
+  {
+    "system": "keycloak",
+    "level": 2,
+    "challenge_name": "brute_force",
+    "passed": false,
+    "response_time_ms": 42,
+    "error": "bruteForceProtected=False",
+    "partial": true
+  },
+  {
+    "system": "zitadel",
+    "level": 2,
+    "challenge_name": "brute_force",
+    "passed": true,
+    "response_time_ms": 2,
+    "error": "Failed login status 400",
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 2,
+    "challenge_name": "brute_force",
+    "passed": false,
+    "response_time_ms": 339,
+    "error": "Auth flow status 200",
+    "partial": true
+  },
+  {
+    "system": "keycloak",
+    "level": 2,
+    "challenge_name": "enable_passkey",
+    "passed": true,
+    "response_time_ms": 37,
+    "error": "Providers: ['auth-cookie', 'conditional-client-scope', 'reset-credentials-choose-user', 'webauthn-authenticator', 'direct-grant-validate-password']",
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 2,
+    "challenge_name": "enable_passkey",
+    "passed": false,
+    "response_time_ms": 1,
+    "error": "Passkey API probe \u2014 manual enrollment required",
+    "partial": true
+  },
+  {
+    "system": "authentik",
+    "level": 2,
+    "challenge_name": "enable_passkey",
+    "passed": false,
+    "response_time_ms": 23,
+    "error": "WebAuthn stages API status 404",
+    "partial": true
+  },
+  {
+    "system": "keycloak",
+    "level": 2,
+    "challenge_name": "enable_totp",
+    "passed": true,
+    "response_time_ms": 38,
+    "error": "OTP policy: totp",
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 2,
+    "challenge_name": "enable_totp",
+    "passed": true,
+    "response_time_ms": 2,
+    "error": "Login policy API status 404",
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 2,
+    "challenge_name": "enable_totp",
+    "passed": false,
+    "response_time_ms": 24,
+    "error": "TOTP stages API status 404",
+    "partial": true
+  },
+  {
+    "system": "keycloak",
+    "level": 3,
+    "challenge_name": "ldap_connect",
+    "passed": true,
+    "response_time_ms": 40,
+    "error": "LDAP user federation API reachable",
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 3,
+    "challenge_name": "ldap_connect",
+    "passed": true,
+    "response_time_ms": 1,
+    "error": "IdP API status 404",
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 3,
+    "challenge_name": "ldap_connect",
+    "passed": true,
+    "response_time_ms": 37,
+    "error": "LDAP sources API status 200",
+    "partial": false
+  },
+  {
+    "system": "keycloak",
+    "level": 3,
+    "challenge_name": "saml_sp",
+    "passed": true,
+    "response_time_ms": 40,
+    "error": "SAML descriptor status 200",
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 3,
+    "challenge_name": "saml_sp",
+    "passed": true,
+    "response_time_ms": 1,
+    "error": "SAML metadata status 404",
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 3,
+    "challenge_name": "saml_sp",
+    "passed": true,
+    "response_time_ms": 40,
+    "error": "SAML providers API status 200",
+    "partial": false
+  },
+  {
+    "system": "keycloak",
+    "level": 3,
+    "challenge_name": "social_login",
+    "passed": true,
+    "response_time_ms": 42,
+    "error": "Identity provider API reachable",
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 3,
+    "challenge_name": "social_login",
+    "passed": true,
+    "response_time_ms": 1,
+    "error": "IdP list API status 404",
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 3,
+    "challenge_name": "social_login",
+    "passed": true,
+    "response_time_ms": 33,
+    "error": "OAuth sources API status 200",
+    "partial": false
+  },
+  {
+    "system": "keycloak",
+    "level": 4,
+    "challenge_name": "biometric_stub",
+    "passed": true,
+    "response_time_ms": 3,
+    "error": "OIDC discovery OK \u2014 WebAuthn enrollment manual",
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 4,
+    "challenge_name": "biometric_stub",
+    "passed": true,
+    "response_time_ms": 1,
+    "error": "Biometric stub \u2014 not automated in lab",
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 4,
+    "challenge_name": "biometric_stub",
+    "passed": false,
+    "response_time_ms": 23,
+    "error": "Validation stages API status 404",
+    "partial": true
+  },
+  {
+    "system": "keycloak",
+    "level": 4,
+    "challenge_name": "risk_based",
+    "passed": false,
+    "response_time_ms": 41,
+    "error": "Conditional auth API reachable",
+    "partial": true
+  },
+  {
+    "system": "zitadel",
+    "level": 4,
+    "challenge_name": "risk_based",
+    "passed": true,
+    "response_time_ms": 1,
+    "error": "Risk policies \u2014 configure in Zitadel console",
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 4,
+    "challenge_name": "risk_based",
+    "passed": true,
+    "response_time_ms": 52,
+    "error": "Expression policies API status 200",
+    "partial": false
+  },
+  {
+    "system": "keycloak",
+    "level": 4,
+    "challenge_name": "step_up_auth",
+    "passed": true,
+    "response_time_ms": 41,
+    "error": "Flows: ['browser', 'direct grant', 'registration', 'reset credentials', 'clients']",
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 4,
+    "challenge_name": "step_up_auth",
+    "passed": true,
+    "response_time_ms": 1,
+    "error": "Custom login policy \u2014 configure in console",
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 4,
+    "challenge_name": "step_up_auth",
+    "passed": true,
+    "response_time_ms": 75,
+    "error": "Flows API status 200",
+    "partial": false
+  },
+  {
+    "system": "keycloak",
+    "level": 5,
+    "challenge_name": "abac_test",
+    "passed": true,
+    "response_time_ms": 47,
+    "error": "Authz policy API status 404",
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 5,
+    "challenge_name": "abac_test",
+    "passed": true,
+    "response_time_ms": 1,
+    "error": "Zitadel ABAC via project roles \u2014 manual setup",
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 5,
+    "challenge_name": "abac_test",
+    "passed": true,
+    "response_time_ms": 65,
+    "error": "Policies API status 200",
+    "partial": false
+  },
+  {
+    "system": "keycloak",
+    "level": 5,
+    "challenge_name": "role_hierarchy",
+    "passed": true,
+    "response_time_ms": 38,
+    "error": "Realm roles listed",
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 5,
+    "challenge_name": "role_hierarchy",
+    "passed": true,
+    "response_time_ms": 1,
+    "error": "Project roles API status 404",
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 5,
+    "challenge_name": "role_hierarchy",
+    "passed": true,
+    "response_time_ms": 33,
+    "error": "RBAC roles API status 200",
+    "partial": false
+  },
+  {
+    "system": "keycloak",
+    "level": 5,
+    "challenge_name": "token_claims",
+    "passed": false,
+    "response_time_ms": 50,
+    "error": "Token claims check status 403",
+    "partial": true
+  },
+  {
+    "system": "zitadel",
+    "level": 5,
+    "challenge_name": "token_claims",
+    "passed": true,
+    "response_time_ms": 2,
+    "error": null,
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 5,
+    "challenge_name": "token_claims",
+    "passed": true,
+    "response_time_ms": 52,
+    "error": "OIDC metadata status 200",
+    "partial": false
+  },
+  {
+    "system": "keycloak",
+    "level": 6,
+    "challenge_name": "audit_log",
+    "passed": true,
+    "response_time_ms": 64,
+    "error": "Events API status 200",
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 6,
+    "challenge_name": "audit_log",
+    "passed": true,
+    "response_time_ms": 8,
+    "error": "Events API status 403",
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 6,
+    "challenge_name": "audit_log",
+    "passed": true,
+    "response_time_ms": 58,
+    "error": "Events API status 200",
+    "partial": false
+  },
+  {
+    "system": "keycloak",
+    "level": 6,
+    "challenge_name": "tenant_isolation",
+    "passed": true,
+    "response_time_ms": 65,
+    "error": "Realms: ['master', 'iam-lab']",
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 6,
+    "challenge_name": "tenant_isolation",
+    "passed": true,
+    "response_time_ms": 9,
+    "error": "Organizations API status 200",
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 6,
+    "challenge_name": "tenant_isolation",
+    "passed": false,
+    "response_time_ms": 38,
+    "error": "Tenants API status 404",
+    "partial": true
+  },
+  {
+    "system": "keycloak",
+    "level": 6,
+    "challenge_name": "token_revocation",
+    "passed": true,
+    "response_time_ms": 77,
+    "error": "Logout endpoint status 204",
+    "partial": false
+  },
+  {
+    "system": "zitadel",
+    "level": 6,
+    "challenge_name": "token_revocation",
+    "passed": true,
+    "response_time_ms": 3,
+    "error": "Revoke endpoint status 400",
+    "partial": false
+  },
+  {
+    "system": "authentik",
+    "level": 6,
+    "challenge_name": "token_revocation",
+    "passed": true,
+    "response_time_ms": 36,
+    "error": "Session end status 404",
+    "partial": false
+  }
+]

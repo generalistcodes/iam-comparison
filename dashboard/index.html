@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IAM Challenge Lab</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --muted: #8b949e;
+      --green: #3fb950;
+      --red: #f85149;
+      --yellow: #d29922;
+      --accent: #58a6ff;
+      --mono: "JetBrains Mono", "Fira Code", "SF Mono", Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--mono);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 1.5rem;
+      background: var(--surface);
+    }
+    header h1 { font-size: 1.1rem; font-weight: 600; color: #f0f6fc; }
+    header p { color: var(--muted); margin-top: 0.35rem; font-size: 0.85rem; }
+    .toolbar {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      align-items: center;
+    }
+    button, .btn {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      padding: 0.4rem 0.75rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover { border-color: var(--accent); color: var(--accent); }
+    button.primary { background: #21262d; border-color: var(--accent); color: var(--accent); }
+    button.run-sys { font-size: 0.72rem; padding: 0.25rem 0.5rem; }
+    main { padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
+    section.level {
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .level-header {
+      background: var(--surface);
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .level-header h2 { font-size: 0.95rem; color: #f0f6fc; }
+    .level-header span { color: var(--muted); font-size: 0.8rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      padding: 0.6rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    th { color: var(--muted); font-weight: 500; font-size: 0.75rem; text-transform: uppercase; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(88, 166, 255, 0.04); }
+    .status { font-weight: 600; }
+    .pass { color: var(--green); }
+    .fail { color: var(--red); }
+    .partial { color: var(--yellow); }
+    .pending { color: var(--muted); }
+    .latency { color: var(--muted); }
+    .actions { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    #terminal {
+      margin-top: 1.5rem;
+      background: #010409;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      min-height: 4rem;
+      color: var(--green);
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+    }
+    #summary {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+    }
+    .error-hint { color: var(--red); font-size: 0.75rem; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #system-notes {
+      margin-top: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    #system-notes .notes-header {
+      background: var(--surface);
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    #system-notes .notes-header h2 { font-size: 0.95rem; color: #f0f6fc; }
+    #system-notes .notes-header p { color: var(--muted); font-size: 0.8rem; margin-top: 0.25rem; }
+    #system-notes-body { padding: 0; }
+    #system-notes-body .note-block {
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+    }
+    #system-notes-body .note-block:last-child { border-bottom: none; }
+    #system-notes-body .note-title {
+      color: var(--accent);
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+    #system-notes-body .note-row {
+      display: grid;
+      grid-template-columns: 6rem 1fr;
+      gap: 0.5rem 1rem;
+      font-size: 0.78rem;
+      padding: 0.25rem 0;
+      align-items: start;
+    }
+    #system-notes-body .note-sys { color: var(--muted); text-transform: uppercase; font-size: 0.72rem; }
+    #system-notes-body .note-msg { color: var(--text); word-break: break-word; }
+    #system-notes-body .note-msg.partial { color: var(--yellow); }
+    #system-notes-body .note-msg.fail { color: var(--red); }
+    #system-notes-body .note-msg.info { color: var(--muted); }
+    #system-notes-empty {
+      padding: 1rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>// IAM Challenge Lab</h1>
+    <p>Compare Keycloak · Zitadel · Authentik across 6 capability levels</p>
+    <div class="toolbar">
+      <button class="primary" id="run-all">▶ Run All</button>
+      <button id="refresh">↻ Refresh Results</button>
+      <span id="last-updated" style="color:var(--muted);font-size:0.8rem"></span>
+    </div>
+  </header>
+
+  <main>
+    <div id="summary">Loading results…</div>
+    <div id="levels"></div>
+    <section id="system-notes">
+      <div class="notes-header">
+        <h2>System Notes</h2>
+        <p>Behavioral differences from <code>results.json</code> — partial outcomes and error annotations per challenge</p>
+      </div>
+      <div id="system-notes-body"><div id="system-notes-empty">No notes yet.</div></div>
+    </section>
+    <div id="terminal">$ ready — run challenges via Makefile, results appear here</div>
+  </main>
+
+  <script>
+    const SYSTEMS = ["keycloak", "zitadel", "authentik"];
+    const LEVELS = [
+      { id: 1, name: "level1_basic", title: "Level 1 — Basic Auth", challenges: ["create_user", "get_token", "verify_token"] },
+      { id: 2, name: "level2_mfa", title: "Level 2 — MFA", challenges: ["enable_totp", "enable_passkey", "brute_force"] },
+      { id: 3, name: "level3_federation", title: "Level 3 — Federation", challenges: ["ldap_connect", "saml_sp", "social_login"] },
+      { id: 4, name: "level4_custom_flows", title: "Level 4 — Custom Flows", challenges: ["step_up_auth", "risk_based", "biometric_stub"] },
+      { id: 5, name: "level5_authorization", title: "Level 5 — Authorization", challenges: ["abac_test", "role_hierarchy", "token_claims"] },
+      { id: 6, name: "level6_hardening", title: "Level 6 — Hardening", challenges: ["tenant_isolation", "token_revocation", "audit_log"] },
+    ];
+
+    let results = [];
+
+    function key(level, challenge, system) {
+      return `${level}|${challenge}|${system}`;
+    }
+
+    function indexResults(rows) {
+      const map = new Map();
+      for (const r of rows) map.set(key(r.level, r.challenge_name, r.system), r);
+      return map;
+    }
+
+    function statusCell(r) {
+      if (!r) return `<span class="status pending">—</span>`;
+      if (r.partial) return `<span class="status partial">⚠ Partial</span>`;
+      if (r.passed) return `<span class="status pass">✅ Pass</span>`;
+      return `<span class="status fail">❌ Fail</span>`;
+    }
+
+    function latencyCell(r) {
+      if (!r) return `<span class="latency">—</span>`;
+      return `<span class="latency">${r.response_time_ms} ms</span>`;
+    }
+
+    function errorCell(r) {
+      if (!r || !r.error) return "";
+      return `<div class="error-hint" title="${r.error.replace(/"/g, "&quot;")}">${r.error}</div>`;
+    }
+
+    function makeCommand(level, challenge, system) {
+      const parts = [`make challenge L=${level}`];
+      if (challenge) parts.push(`CHALLENGE=${challenge}`);
+      if (system) parts.push(`SYSTEM=${system}`);
+      return parts.join(" ");
+    }
+
+    function log(msg) {
+      const t = document.getElementById("terminal");
+      t.textContent = `$ ${msg}\n\nRun in project root, then click Refresh.`;
+    }
+
+    async function copyCommand(cmd) {
+      try { await navigator.clipboard.writeText(cmd); } catch (_) {}
+      log(cmd + "  # copied to clipboard");
+    }
+
+    function renderLevels(map) {
+      const container = document.getElementById("levels");
+      container.innerHTML = LEVELS.map(level => `
+        <section class="level">
+          <div class="level-header">
+            <h2>${level.title}</h2>
+            <span>${level.challenges.length} challenges × 3 systems</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Challenge</th>
+                ${SYSTEMS.map(s => `<th>${s}</th>`).join("")}
+                <th>Run</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${level.challenges.map(ch => `
+                <tr>
+                  <td><code>${ch}</code></td>
+                  ${SYSTEMS.map(sys => {
+                    const r = map.get(key(level.id, ch, sys));
+                    return `<td>${statusCell(r)} ${latencyCell(r)}${errorCell(r)}</td>`;
+                  }).join("")}
+                  <td class="actions">
+                    ${SYSTEMS.map(sys =>
+                      `<button class="run-sys" data-l="${level.id}" data-c="${ch}" data-s="${sys}">${sys.slice(0,3)}</button>`
+                    ).join("")}
+                    <button class="run-sys" data-l="${level.id}" data-c="${ch}">all</button>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </section>
+      `).join("");
+
+      container.querySelectorAll("button[data-l]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const cmd = makeCommand(btn.dataset.l, btn.dataset.c, btn.dataset.s || null);
+          copyCommand(cmd);
+        });
+      });
+    }
+
+    function renderSummary(rows) {
+      const passed = rows.filter(r => r.passed).length;
+      const partial = rows.filter(r => r.partial).length;
+      const total = rows.length;
+      document.getElementById("summary").textContent =
+        total ? `${passed}/${total} passed · ${partial} partial · ${total - passed - partial} failed` : "No results yet — run: make challenge L=all";
+    }
+
+    function renderSystemNotes(rows) {
+      const container = document.getElementById("system-notes-body");
+      const notes = rows.filter(r => r.error || r.partial);
+
+      if (!notes.length) {
+        container.innerHTML = '<div id="system-notes-empty">No partial results or error annotations — all clean passes.</div>';
+        return;
+      }
+
+      const byChallenge = new Map();
+      for (const r of notes) {
+        const id = `L${r.level}/${r.challenge_name}`;
+        if (!byChallenge.has(id)) byChallenge.set(id, []);
+        byChallenge.get(id).push(r);
+      }
+
+      const blocks = [...byChallenge.entries()]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([id, items]) => {
+          const rows = items
+            .sort((a, b) => a.system.localeCompare(b.system))
+            .map(r => {
+              let cls = "info";
+              if (r.partial) cls = "partial";
+              else if (!r.passed) cls = "fail";
+              const tag = r.partial ? "partial" : (!r.passed ? "fail" : "pass+note");
+              return `
+                <div class="note-row">
+                  <span class="note-sys">${r.system}</span>
+                  <span class="note-msg ${cls}">[${tag}] ${escapeHtml(r.error || "(partial, no message)")}</span>
+                </div>`;
+            })
+            .join("");
+          return `
+            <div class="note-block">
+              <div class="note-title">// ${id}</div>
+              ${rows}
+            </div>`;
+        })
+        .join("");
+
+      container.innerHTML = blocks;
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    async function loadResults() {
+      try {
+        const res = await fetch("/challenges/results.json?" + Date.now());
+        if (!res.ok) throw new Error(res.statusText);
+        results = await res.json();
+        document.getElementById("last-updated").textContent = "updated " + new Date().toLocaleTimeString();
+      } catch (e) {
+        results = [];
+        document.getElementById("last-updated").textContent = "results.json not found — run make challenge";
+      }
+      const map = indexResults(results);
+      renderLevels(map);
+      renderSummary(results);
+      renderSystemNotes(results);
+    }
+
+    document.getElementById("refresh").addEventListener("click", loadResults);
+    document.getElementById("run-all").addEventListener("click", () => copyCommand("make challenge L=all"));
+
+    loadResults();
+    setInterval(loadResults, 8000);
+  </script>
+</body>
+</html>

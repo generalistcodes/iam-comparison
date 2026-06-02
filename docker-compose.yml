@@ -1,0 +1,313 @@
+name: iam-opensource
+
+services:
+  # ---------------------------------------------------------------------------
+  # Portainer — always running (no profile)
+  # ---------------------------------------------------------------------------
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: iam-portainer
+    restart: unless-stopped
+    ports:
+      - "${PORTAINER_HTTP_PORT}:9000"
+      - "${PORTAINER_HTTPS_PORT}:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - iam
+
+  # ---------------------------------------------------------------------------
+  # Keycloak profile
+  # ---------------------------------------------------------------------------
+  keycloak-postgres:
+    image: ${POSTGRES_IMAGE}
+    container_name: iam-keycloak-postgres
+    profiles: [keycloak]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${KEYCLOAK_DB_USER}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      POSTGRES_DB: ${KEYCLOAK_DB_NAME}
+    volumes:
+      - keycloak_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KEYCLOAK_DB_USER} -d ${KEYCLOAK_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - iam
+
+  keycloak:
+    image: ${KEYCLOAK_IMAGE}
+    container_name: iam-keycloak
+    profiles: [keycloak]
+    restart: unless-stopped
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-postgres:5432/${KEYCLOAK_DB_NAME}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KC_DB_SCHEMA: public
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "${KEYCLOAK_HTTP_PORT}:8080"
+    depends_on:
+      keycloak-postgres:
+        condition: service_healthy
+    networks:
+      - iam
+
+  # ---------------------------------------------------------------------------
+  # Zitadel profile
+  # ---------------------------------------------------------------------------
+  zitadel-postgres:
+    image: ${POSTGRES_IMAGE}
+    container_name: iam-zitadel-postgres
+    profiles: [zitadel]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${ZITADEL_DB_ADMIN_USER}
+      POSTGRES_PASSWORD: ${ZITADEL_DB_ADMIN_PASSWORD}
+      POSTGRES_DB: ${ZITADEL_DB_NAME}
+    volumes:
+      - zitadel_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ZITADEL_DB_ADMIN_USER} -d ${ZITADEL_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - iam
+
+  zitadel:
+    image: ${ZITADEL_IMAGE}
+    container_name: iam-zitadel
+    profiles: [zitadel]
+    restart: unless-stopped
+    user: "0"
+    command: start-from-init --masterkey "${ZITADEL_MASTERKEY}"
+    environment:
+      ZITADEL_EXTERNALDOMAIN: localhost
+      ZITADEL_EXTERNALPORT: ${ZITADEL_HTTP_PORT}
+      ZITADEL_EXTERNALSECURE: "false"
+      ZITADEL_TLS_ENABLED: "false"
+      ZITADEL_DATABASE_POSTGRES_HOST: zitadel-postgres
+      ZITADEL_DATABASE_POSTGRES_PORT: 5432
+      ZITADEL_DATABASE_POSTGRES_DATABASE: ${ZITADEL_DB_NAME}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: ${ZITADEL_DB_ADMIN_USER}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: ${ZITADEL_DB_ADMIN_PASSWORD}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: disable
+      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: ${ZITADEL_DB_USER}
+      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: ${ZITADEL_DB_PASSWORD}
+      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: disable
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: "false"
+      ZITADEL_FIRSTINSTANCE_LOGINCLIENTPATPATH: /zitadel-data/login-client.pat
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_USERNAME: login-client
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_NAME: login-client
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_PAT_EXPIRATIONDATE: "2099-01-01T00:00:00Z"
+      ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_REQUIRED: "true"
+      ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_BASEURI: http://localhost:${ZITADEL_LOGIN_PORT}/ui/v2/login/
+      ZITADEL_OIDC_DEFAULTLOGINURLV2: http://localhost:${ZITADEL_LOGIN_PORT}/ui/v2/login/login?authRequest=
+      ZITADEL_OIDC_DEFAULTLOGOUTURLV2: http://localhost:${ZITADEL_LOGIN_PORT}/ui/v2/login/logout?post_logout_redirect=
+      ZITADEL_SAML_DEFAULTLOGINURLV2: http://localhost:${ZITADEL_LOGIN_PORT}/ui/v2/login/login?samlRequest=
+      ZITADEL_LOGSTORE_ACCESS_STDOUT_ENABLED: "true"
+    ports:
+      - "${ZITADEL_HTTP_PORT}:8080"
+    volumes:
+      - zitadel_data:/zitadel-data
+    healthcheck:
+      test: ["CMD", "/app/zitadel", "ready"]
+      interval: 10s
+      timeout: 30s
+      retries: 12
+      start_period: 30s
+    depends_on:
+      zitadel-postgres:
+        condition: service_healthy
+    networks:
+      - iam
+
+  zitadel-login:
+    image: ${ZITADEL_LOGIN_IMAGE}
+    container_name: iam-zitadel-login
+    profiles: [zitadel]
+    restart: unless-stopped
+    environment:
+      ZITADEL_API_URL: http://zitadel:8080
+      NEXT_PUBLIC_BASE_PATH: /ui/v2/login
+      ZITADEL_SERVICE_USER_TOKEN_FILE: /zitadel-data/login-client.pat
+      CUSTOM_REQUEST_HEADERS: Host:localhost
+    ports:
+      - "${ZITADEL_LOGIN_PORT}:3000"
+    volumes:
+      - zitadel_data:/zitadel-data:ro
+    depends_on:
+      zitadel:
+        condition: service_healthy
+    networks:
+      - iam
+
+  # ---------------------------------------------------------------------------
+  # Authentik profile
+  # ---------------------------------------------------------------------------
+  authentik-postgres:
+    image: ${POSTGRES_IMAGE}
+    container_name: iam-authentik-postgres
+    profiles: [authentik]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${AUTHENTIK_PG_USER}
+      POSTGRES_PASSWORD: ${AUTHENTIK_PG_PASS}
+      POSTGRES_DB: ${AUTHENTIK_PG_DB}
+    volumes:
+      - authentik_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AUTHENTIK_PG_USER} -d ${AUTHENTIK_PG_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - iam
+
+  authentik-server:
+    image: ${AUTHENTIK_IMAGE}:${AUTHENTIK_TAG}
+    container_name: iam-authentik-server
+    profiles: [authentik]
+    restart: unless-stopped
+    command: server
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_POSTGRESQL__HOST: authentik-postgres
+      AUTHENTIK_POSTGRESQL__USER: ${AUTHENTIK_PG_USER}
+      AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_PG_DB}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_PG_PASS}
+    ports:
+      - "${AUTHENTIK_HTTP_PORT}:9000"
+      - "${AUTHENTIK_HTTPS_PORT}:9443"
+    volumes:
+      - authentik_media:/media
+      - authentik_templates:/templates
+    depends_on:
+      authentik-postgres:
+        condition: service_healthy
+    networks:
+      - iam
+
+  authentik-worker:
+    image: ${AUTHENTIK_IMAGE}:${AUTHENTIK_TAG}
+    container_name: iam-authentik-worker
+    profiles: [authentik]
+    restart: unless-stopped
+    user: root
+    command: worker
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_POSTGRESQL__HOST: authentik-postgres
+      AUTHENTIK_POSTGRESQL__USER: ${AUTHENTIK_PG_USER}
+      AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_PG_DB}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_PG_PASS}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - authentik_media:/media
+      - authentik_certs:/certs
+      - authentik_templates:/templates
+    depends_on:
+      authentik-postgres:
+        condition: service_healthy
+    networks:
+      - iam
+
+  # ---------------------------------------------------------------------------
+  # Gluu profile
+  # ---------------------------------------------------------------------------
+  gluu-postgres:
+    image: postgres:15-alpine
+    container_name: iam-gluu-postgres
+    profiles: [gluu]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${GLUU_DB_USER}
+      POSTGRES_PASSWORD: ${GLUU_DB_PASSWORD}
+      POSTGRES_DB: ${GLUU_DB_NAME}
+    volumes:
+      - gluu_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${GLUU_DB_USER} -d ${GLUU_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - iam
+
+  gluu:
+    image: ${GLUU_IMAGE}
+    container_name: iam-gluu
+    profiles: [gluu]
+    restart: unless-stopped
+    environment:
+      CN_HOSTNAME: ${GLUU_HOSTNAME}
+      CN_ADMIN_PASS: ${GLUU_ADMIN_PASSWORD}
+      CN_ORG_NAME: ${GLUU_ORG_NAME}
+      CN_EMAIL: ${GLUU_EMAIL}
+      CN_CITY: Austin
+      CN_STATE: TX
+      CN_COUNTRY: US
+      IS_FQDN_REGISTERED: "false"
+      CN_INSTALL_PGSQL: "true"
+      CN_INSTALL_CONFIG_API: "true"
+      CN_INSTALL_SCIM: "true"
+      CN_INSTALL_FIDO2: "true"
+      CN_INSTALL_CASA: "true"
+      CN_INSTALL_ADMIN_UI: "true"
+      RDBMS_DATABASE: ${GLUU_DB_NAME}
+      RDBMS_USER: ${GLUU_DB_USER}
+      RDBMS_PASSWORD: ${GLUU_DB_PASSWORD}
+      RDBMS_HOST: gluu-postgres
+    ports:
+      - "${GLUU_HTTP_PORT}:80"
+      - "${GLUU_HTTPS_PORT}:443"
+    volumes:
+      - ./gluu/custom/jans-auth:/opt/jans/jetty/jans-auth/custom
+      - ./gluu/custom/jans-config-api:/opt/jans/jetty/jans-config-api/custom
+      - ./gluu/custom/jans-fido2:/opt/jans/jetty/jans-fido2/custom
+      - ./gluu/custom/jans-scim:/opt/jans/jetty/jans-scim/custom
+      - ./gluu/custom/jans-casa:/opt/jans/jetty/casa/custom
+      - gluu_auth_logs:/opt/jans/jetty/jans-auth/logs
+      - gluu_config_api_logs:/opt/jans/jetty/jans-config-api/logs
+      - gluu_scim_logs:/opt/jans/jetty/jans-scim/logs
+      - gluu_fido2_logs:/opt/jans/jetty/jans-fido2/log
+    depends_on:
+      gluu-postgres:
+        condition: service_healthy
+    networks:
+      - iam
+
+networks:
+  iam:
+    name: iam-opensource
+
+volumes:
+  portainer_data:
+  keycloak_postgres_data:
+  zitadel_postgres_data:
+  zitadel_data:
+  authentik_postgres_data:
+  authentik_media:
+  authentik_certs:
+  authentik_templates:
+  gluu_postgres_data:
+  gluu_auth_logs:
+  gluu_config_api_logs:
+  gluu_scim_logs:
+  gluu_fido2_logs:
