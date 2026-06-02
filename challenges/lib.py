@@ -21,9 +21,13 @@ class ChallengeResult:
     response_time_ms: int
     error: str | None = None
     partial: bool = False
+    jwks_fetch_ms: int | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        data = asdict(self)
+        if data.get("jwks_fetch_ms") is None:
+            data.pop("jwks_fetch_ms", None)
+        return data
 
 
 def result(
@@ -34,6 +38,7 @@ def result(
     response_time_ms: int,
     error: str | None = None,
     partial: bool = False,
+    jwks_fetch_ms: int | None = None,
 ) -> dict[str, Any]:
     return ChallengeResult(
         system=system,
@@ -43,6 +48,7 @@ def result(
         response_time_ms=response_time_ms,
         error=error,
         partial=partial,
+        jwks_fetch_ms=jwks_fetch_ms,
     ).to_dict()
 
 

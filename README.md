@@ -4,17 +4,18 @@ A systematic comparison of Keycloak, Zitadel, Authentik, and Gluu running as iso
 
 ## Challenge Framework
 
-This lab includes 18 automated challenges across 6 levels — authentication, MFA, federation, custom flows, authorization, and enterprise hardening — tested identically against each system. Run `python3 verify.py` to execute all challenges against the currently running system and generate a comparison report in `challenges/results.json`. Open `dashboard/index.html` to view results visually.
+This lab includes 20 automated challenges across 6 levels — authentication, MFA, federation, custom flows, authorization, and enterprise hardening — tested identically against each system. Run `python3 verify.py` to execute all challenges against the currently running system and generate a comparison report in `challenges/results.json`. Open `dashboard/index.html` to view results visually.
 
 ## Challenge Results
 
-Results from running all 18 challenges against each system. ✅ Pass · ⚠️ Partial · ❌ Fail
+Results from running all 20 challenges against each system. ✅ Pass · ⚠️ Partial · ❌ Fail
 
 | Level | Challenge | Use Case | Keycloak | Zitadel | Authentik |
 |-------|-----------|----------|----------|---------|-----------|
 | L1 Basic | Create User | Validates user provisioning API — critical for SCIM and HR system integration | ✅ 42ms | ✅ 13ms | ✅ 43ms |
 | L1 Basic | Get Token | Confirms OAuth/OIDC token issuance — required for every API and SSO integration | ✅ 5ms | ✅ 8ms | ✅ 220ms |
 | L1 Basic | Verify Token | Validates token introspection and userinfo — needed for resource-server authorization | ✅ 47ms | ✅ 6ms | ✅ 49ms |
+| L1 Basic | Decode Token | Validates token structure and signature verification — critical for any service that consumes JWTs | ✅ 79ms | ❌ 2ms | ⚠️ 1099ms |
 | L2 MFA | Enable TOTP | Verifies TOTP MFA policy support — baseline for phishing-resistant workforce access | ✅ 38ms | ✅ 2ms | ⚠️ 24ms |
 | L2 MFA | Enable Passkey | Checks WebAuthn/passkey capability — increasingly required for passwordless auth | ✅ 37ms | ⚠️ 1ms | ⚠️ 23ms |
 | L2 MFA | Brute Force Protection | Tests account lockout on failed login — essential for credential-stuffing defense | ⚠️ 42ms | ✅ 2ms | ⚠️ 339ms |
@@ -30,15 +31,16 @@ Results from running all 18 challenges against each system. ✅ Pass · ⚠️ P
 | L6 Hardening | Tenant Isolation | Tests multi-tenant boundary primitives — required for SaaS and multi-brand deployments | ✅ 65ms | ✅ 9ms | ⚠️ 38ms |
 | L6 Hardening | Token Revocation | Validates logout and token revocation — needed for session termination and incident response | ✅ 77ms | ✅ 3ms | ✅ 36ms |
 | L6 Hardening | Audit Log | Confirms security event retrieval APIs — mandatory for compliance and SOC monitoring | ✅ 64ms | ✅ 8ms | ✅ 58ms |
+| L6 Hardening | Legacy User Migration | Validates bulk user provisioning — critical for migrating from legacy identity stores without forcing password resets | ✅ 133ms | ✅ 9944ms | ✅ 12887ms |
 
 **What this means**
 
-- **L1 Basic** — All three systems pass: user provisioning, token issuance, and validation work out of the box after `make setup`. This is the minimum bar for any OIDC/SSO deployment; failures here block every downstream integration.
+- **L1 Basic** — All three systems pass: user provisioning, token issuance, validation, and JWT decode work out of the box after `make setup`. This is the minimum bar for any OIDC/SSO deployment; failures here block every downstream integration.
 - **L2 MFA** — Keycloak exposes TOTP and WebAuthn providers but brute-force protection is off in dev mode; Zitadel and Authentik show partials on MFA stage APIs. Enterprises must validate actual MFA enrollment and lockout policies in console, not just API reachability.
 - **L3 Federation** — All systems pass federation API probes (LDAP, SAML, social IdP). This confirms legacy directory sync and B2B SSO can be configured; it does not prove end-to-end federation without manual IdP setup.
 - **L4 Custom Flows** — Step-up and flow APIs are available on all three; Keycloak and Authentik show partials on risk/biometric probes where strict criteria aren't met in dev. Passing this level means custom auth flows are modelled — but production step-up requires flow design in admin UI.
 - **L5 Authorization** — RBAC and policy APIs respond on all systems; Keycloak is partial on token claims (userinfo 403 without full scope). Fine-grained authorization is possible, but token mapper and scope configuration needs explicit production tuning.
-- **L6 Hardening** — Audit logging and token revocation pass broadly; Authentik is partial on tenant isolation (OSS single-tenant). Compliance teams get event APIs on all three, but multi-tenant isolation and PAT-scoped audit access may need enterprise tier or additional config.
+- **L6 Hardening** — Audit logging, token revocation, and bulk user migration pass broadly; Authentik is partial on tenant isolation (OSS single-tenant). Compliance teams get event APIs on all three, but multi-tenant isolation and PAT-scoped audit access may need enterprise tier or additional config.
 
 # IAM Open Source Lab
 

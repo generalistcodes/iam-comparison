@@ -112,9 +112,10 @@ def format_result_line(r: dict) -> str:
     err = r.get("error") or ""
     err_suffix = f"  {DIM}{err[:80]}{RESET}" if err and not r.get("passed") else ""
     retry = " (retry)" if r.get("_retried") else ""
+    jwks = f"  {DIM}jwks={r['jwks_fetch_ms']}ms{RESET}" if r.get("jwks_fetch_ms") is not None else ""
     return (
         f"  L{r['level']} {r['challenge_name']:<22} "
-        f"{r['system']:<12} {icon}  {r['response_time_ms']:>4}ms{retry}{err_suffix}"
+        f"{r['system']:<12} {icon}  {r['response_time_ms']:>4}ms{jwks}{retry}{err_suffix}"
     )
 
 

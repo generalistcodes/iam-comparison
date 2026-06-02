@@ -178,12 +178,12 @@
   <script>
     const SYSTEMS = ["keycloak", "zitadel", "authentik"];
     const LEVELS = [
-      { id: 1, name: "level1_basic", title: "Level 1 — Basic Auth", challenges: ["create_user", "get_token", "verify_token"] },
+      { id: 1, name: "level1_basic", title: "Level 1 — Basic Auth", challenges: ["create_user", "get_token", "verify_token", "decode_token"] },
       { id: 2, name: "level2_mfa", title: "Level 2 — MFA", challenges: ["enable_totp", "enable_passkey", "brute_force"] },
       { id: 3, name: "level3_federation", title: "Level 3 — Federation", challenges: ["ldap_connect", "saml_sp", "social_login"] },
       { id: 4, name: "level4_custom_flows", title: "Level 4 — Custom Flows", challenges: ["step_up_auth", "risk_based", "biometric_stub"] },
       { id: 5, name: "level5_authorization", title: "Level 5 — Authorization", challenges: ["abac_test", "role_hierarchy", "token_claims"] },
-      { id: 6, name: "level6_hardening", title: "Level 6 — Hardening", challenges: ["tenant_isolation", "token_revocation", "audit_log"] },
+      { id: 6, name: "level6_hardening", title: "Level 6 — Hardening", challenges: ["tenant_isolation", "token_revocation", "audit_log", "legacy_user_migration"] },
     ];
 
     let results = [];
